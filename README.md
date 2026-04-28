@@ -67,7 +67,7 @@ Full architecture, design rationale, and decision log: **[docs/architecture.md](
 
 ### Build status — Phase 1
 
-- [ ] Terraform foundation (providers, variables, tagging)
+- ✅ Terraform foundation (providers, variables, tagging)
 - [ ] AWS infrastructure (IAM, VPC, S3, Secrets Manager, CloudWatch, EC2, EventBridge)
 - [ ] Databricks setup (UC volume, schema, grants, service principal)
 - [ ] Runtime services (FastAPI emit, sync agent, judge worker)
