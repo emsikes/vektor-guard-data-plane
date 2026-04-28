@@ -2,6 +2,7 @@
 # terraform.tfvars is gitignored; this example file is committed to github
 
 aws_region      = "us-west-2"
+aws_account_id  = "REPLACE_WITH_YOUR_ACCOUNT_ID"
 project_name    = "vektor-guard-dp"
 environment     = "dev"
 owner           = "Matt"
