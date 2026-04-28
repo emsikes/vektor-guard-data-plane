@@ -1,0 +1,7 @@
+# Copy this file to terraform.tfvars and modify values 
+# terraform.tfvars is gitignored; this example file is committed to github
+
+aws_region      = "us-west-2"
+project_name    = "vektor-guard-dp"
+environment     = "dev"
+owner           = "Matt"

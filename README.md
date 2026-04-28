@@ -35,13 +35,13 @@ A closed-loop telemetry and training-data pipeline for the [Vektor-Guard](https:
 Two-phase build. Phase 1 ships a working end-to-end pipeline on a single EC2 instance. Phase 2 refactors the judge worker to event-driven serverless, demonstrating the monolith → microservices transition as its own portfolio artifact.
 
 <p align="center">
-  <img src="variant1_ec2_only.png" alt="Phase 1 architecture — Variant 1 EC2-only" width="800">
+  <img src="img/variant1_ec2_only.png" alt="Phase 1 architecture — Variant 1 EC2-only" width="800">
 </p>
 
 The data plane serves two consumption paths from a single medallion lakehouse:
 
 <p align="center">
-  <img src="gold_layer_consumers.png" alt="Gold layer consumers" width="800">
+  <img src="img/gold_layer_consumers.png" alt="Gold layer consumers" width="800">
 </p>
 
 | Loop | Latency | Consumer | Purpose |
