@@ -10,9 +10,9 @@
 # ----------------------------------------------------------------------------
 
 resource "aws_cloudwatch_log_group" "runtime" {
-    name                = "/${local.name_prefix}/runtime"
-    retention_in_days   = 14
-    log_group_class     = "STANDARD"
+  name              = "/${local.name_prefix}/runtime"
+  retention_in_days = 14
+  log_group_class   = "STANDARD"
 }
 
 
