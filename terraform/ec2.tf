@@ -74,12 +74,11 @@ locals {
 }
 
 resource "aws_instance" "runtime" {
-  ami                         = data.aws_ami.al2023_arm64.id
-  instance_type               = "t4g.large"
-  subnet_id                   = data.aws_subnets.default.ids[0]
-  vpc_security_group_ids      = [aws_security_group.ec2_runtime.id]
-  iam_instance_profile        = aws_iam_instance_profile.ec2_runtime.name
-  associate_public_ip_address = true
+  ami                    = data.aws_ami.al2023_arm64.id
+  instance_type          = "t4g.large"
+  subnet_id              = data.aws_subnets.default.ids[0]
+  vpc_security_group_ids = [aws_security_group.ec2_runtime.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_runtime.name
 
   user_data                   = local.bootstrap
   user_data_replace_on_change = true
@@ -107,7 +106,8 @@ resource "aws_instance" "runtime" {
   # We don't await for it in Terraform, verification happens via SSM after apply.
   lifecycle {
     ignore_changes = [
-      ami, # Avoid replacing the instance every time a new AL2023 AMI publishes
+      ami,                         # Avoid replacing the instance every time a new AL2023 AMI publishes
+      associate_public_ip_address, # subnet-level default applies; never trust read-back here
     ]
   }
 }
