@@ -83,25 +83,70 @@ Full architecture, design rationale, and decision log: **[docs/architecture.md](
 ## Tech stack
 
 ### AWS infrastructure
-EC2 `t4g.large` (Graviton2, ARM64) · IAM (least-privilege instance profile, account-ID guardrail) · S3 (event archive, TLS-only, Glacier IR lifecycle) · Secrets Manager · SSM Parameter Store · CloudWatch Logs (split per workload, 14-day retention) · ECR · EventBridge Scheduler (weekday 10-17, manual override outside hours)
+
+- EC2 `t4g.large` (Graviton2, ARM64)
+- IAM (least-privilege instance profile, account-ID guardrail)
+- S3 (event archive, TLS-only, Glacier IR lifecycle)
+- Secrets Manager
+- SSM Parameter Store
+- CloudWatch Logs (split per workload, 14-day retention)
+- ECR
+- EventBridge Scheduler (weekday 10-17, manual override outside hours)
 
 ### Infrastructure as code
-Terraform 1.9+ · AWS provider `~> 5.70` · Databricks provider · `tflint` · `checkov`
+
+- Terraform 1.9+
+- AWS provider `~> 5.70`
+- Databricks provider
+- `tflint`
+- `checkov`
 
 ### CI/CD
-GitHub Actions · Self-hosted runner (Proxmox) · AWS SSM Run Command · `docker buildx` (ARM64 native, dev workstation to Graviton)
+
+- GitHub Actions
+- Self-hosted runner (Proxmox)
+- AWS SSM Run Command
+- `docker buildx` (ARM64 native, dev workstation to Graviton)
 
 ### Runtime - Vektor-Guard service
-Python 3.13 · FastAPI · Uvicorn (Gunicorn workers) · Pydantic v2 · transformers + PyTorch CPU (ModernBERT-large) · structlog · prometheus-client · databricks-sdk-py · boto3 · Anthropic + OpenAI SDKs · HuggingFace `datasets` · Docker · Docker Compose · Systemd
+
+- Python 3.13
+- FastAPI + Uvicorn (Gunicorn workers)
+- Pydantic v2
+- transformers + PyTorch CPU (ModernBERT-large)
+- structlog
+- prometheus-client
+- databricks-sdk-py
+- boto3
+- Anthropic + OpenAI SDKs
+- HuggingFace `datasets`
+- Docker + Docker Compose
+- Systemd
 
 ### Databricks data plane (Free Edition)
-Unity Catalog (tags, row filters, column masks, lineage, audit) · Delta Lake · Auto Loader · Structured Streaming · Lakeflow Declarative Pipelines · MLflow · Model Registry · Feature Store (offline) · Databricks SQL
+
+- Unity Catalog (tags, row filters, column masks, lineage, audit)
+- Delta Lake
+- Auto Loader
+- Structured Streaming
+- Lakeflow Declarative Pipelines
+- MLflow + Model Registry
+- Feature Store (offline)
+- Databricks SQL
 
 ### External services
-HuggingFace Hub (model artifacts and replay corpus, SHA-pinned) · Anthropic API (Claude judge and synthetic generator) · OpenAI API (GPT judge and critic) · Weights & Biases (training tracking)
+
+- HuggingFace Hub (model artifacts and replay corpus, SHA-pinned)
+- Anthropic API (Claude judge and synthetic generator)
+- OpenAI API (GPT judge and critic)
+- Weights & Biases (training tracking)
 
 ### Observability
-CloudWatch (logs, metrics, alarms) · MLflow UI · Unity Catalog audit logs · Databricks SQL dashboards
+
+- CloudWatch (logs, metrics, alarms)
+- MLflow UI
+- Unity Catalog audit logs
+- Databricks SQL dashboards
 
 ---
 
