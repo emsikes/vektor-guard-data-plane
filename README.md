@@ -1,4 +1,4 @@
-# Vektor-Guard Data Plane
+# Vektor-Guard Telemetry Lakehouse
 
 [![Terraform](https://img.shields.io/badge/IaC-Terraform_1.9+-7b42bc?logo=terraform&logoColor=white)](https://www.terraform.io/)
 [![AWS](https://img.shields.io/badge/Cloud-AWS-232f3e?logo=amazonaws&logoColor=white)](https://aws.amazon.com/)
@@ -10,9 +10,9 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Phase_1_in_progress-orange)](#build-status)
 
-A closed-loop telemetry and training-data pipeline for the [Vektor-Guard](https://huggingface.co/theinferenceloop/vektor-guard-v1) prompt-injection and jailbreak classifier. Every production inference becomes a candidate training example - versioned, governed, and traceable from raw event back to the model artifact it trains.
+A closed-loop telemetry lakehouse for the [Vektor-Guard](https://huggingface.co/theinferenceloop/vektor-guard-v2) prompt-injection and jailbreak classifier. Every production inference becomes a candidate training example - versioned, governed, and traceable from raw event back to the model artifact it trains.
 
-> **Why this exists.** AI security models decay. Attackers evolve, the training distribution goes stale, and a classifier that doesn't see production traffic can't learn from it. Most AI security products ship a model and never close the loop. This project is the data plane that closes it.
+> **Why this exists.** AI security models decay. Attackers evolve, the training distribution goes stale, and a classifier that doesn't see production traffic can't learn from it. Most AI security products ship a model and never close the loop. This project is the telemetry lakehouse that closes it.
 
 ---
 
@@ -38,7 +38,7 @@ Two-phase build. Phase 1 ships a working end-to-end pipeline on a single EC2 ins
   <img src="docs/img/variant1_ec2_only.png" alt="Phase 1 architecture - Variant 1 EC2-only" width="800">
 </p>
 
-The data plane is fed by two complementary event sources: deterministic replay of a labeled corpus for validation, and live LLM-driven synthetic generation for variety and load. Both feed the same FastAPI endpoint with provenance tagging that flows through to the bronze layer.
+The lakehouse is fed by two complementary event sources: deterministic replay of a labeled corpus for validation, and live LLM-driven synthetic generation for variety and load. Both feed the same FastAPI endpoint with provenance tagging that flows through to the bronze layer.
 
 The lakehouse serves two consumption paths:
 
@@ -71,7 +71,7 @@ Full architecture, design rationale, and decision log: **[docs/architecture.md](
 
 - ✅ Terraform foundation (providers, variables, tagging, account-ID guardrail)
 - ✅ AWS infrastructure (IAM, VPC, S3, Secrets Manager, CloudWatch, EC2, EventBridge)
-- [ ] Databricks setup (UC volume, schema, grants, service principal)
+- 🚧 Databricks setup (catalog, schema, volume created; Terraform-managed schema and volume pending)
 - [ ] Runtime services (FastAPI emit, sync agent, judge worker, replay agent, synthetic generator)
 - [ ] CI/CD (GitHub Actions to ECR to SSM Run Command)
 - [ ] Medallion (bronze ingestion, silver enrichment, gold curation)
@@ -123,7 +123,7 @@ Full architecture, design rationale, and decision log: **[docs/architecture.md](
 - Docker + Docker Compose
 - Systemd
 
-### Databricks data plane (Free Edition)
+### Databricks lakehouse (Free Edition)
 
 - Unity Catalog (tags, row filters, column masks, lineage, audit)
 - Delta Lake
@@ -153,7 +153,7 @@ Full architecture, design rationale, and decision log: **[docs/architecture.md](
 ## Repository structure
 
 ```text
-vektor-guard-data-plane/
+vektor-guard-telemetry-lakehouse/
 ├── README.md                       # this file
 ├── .gitignore
 ├── LICENSE
@@ -178,13 +178,16 @@ vektor-guard-data-plane/
 ├── docker/
 │   ├── Dockerfile.runtime
 │   └── docker-compose.yml
-└── src/
-    └── vektor_guard_runtime/        # Python service code
-        ├── fastapi_app.py           # inference endpoint + event emitter
-        ├── sync_agent.py            # rolling file sink to UC volume sync
-        ├── judge_worker.py          # dual-LLM verdict generation
-        ├── replay_agent.py          # labeled corpus replay
-        └── synthetic_generator.py   # dual-LLM adversarial generation
+├── src/
+│   └── vektor_guard_runtime/        # Python service code
+│       ├── fastapi_app.py           # inference endpoint + event emitter
+│       ├── sync_agent.py            # rolling file sink to UC volume sync
+│       ├── judge_worker.py          # dual-LLM verdict generation
+│       ├── replay_agent.py          # labeled corpus replay
+│       └── synthetic_generator.py   # dual-LLM adversarial generation
+└── tests/
+    └── smoke/
+        └── databricks_smoke_test.py # validates UC volume write path
 ```
 
 ---
@@ -202,8 +205,8 @@ vektor-guard-data-plane/
 
 ```bash
 # 1. Clone and enter
-git clone https://github.com/<owner>/vektor-guard-data-plane.git
-cd vektor-guard-data-plane
+git clone https://github.com/<owner>/vektor-guard-telemetry-lakehouse.git
+cd vektor-guard-telemetry-lakehouse
 
 # 2. Configure variables
 cp terraform/terraform.tfvars.example terraform/terraform.tfvars
@@ -224,7 +227,10 @@ aws secretsmanager put-secret-value --secret-id vektor-guard-dp-dev/openai-api-k
 aws ssm put-parameter --name /vektor-guard-dp-dev/databricks/workspace-url \
   --value "https://dbc-xxxxxxxx-yyyy.cloud.databricks.com" --type String --overwrite
 
-# 6. Build and push runtime image (Phase D, CI/CD handles ECR push and SSM deploy)
+# 6. Verify the Databricks write path
+python tests/smoke/databricks_smoke_test.py
+
+# 7. Build and push runtime image (Phase D, CI/CD handles ECR push and SSM deploy)
 cd ../docker
 docker buildx build --platform linux/arm64 -t vektor-guard-runtime:latest -f Dockerfile.runtime ..
 ```
@@ -275,5 +281,5 @@ MIT, see [LICENSE](LICENSE).
 
 Building open-source AI security tools and writing about AI infrastructure at [theinferenceloop.substack.com](https://theinferenceloop.substack.com). Related work:
 
-- **[Vektor-Guard](https://huggingface.co/theinferenceloop/vektor-guard-v1)** - the model this data plane serves
+- **[Vektor-Guard](https://huggingface.co/theinferenceloop/vektor-guard-v2)** - the model this lakehouse serves
 - **[The Inference Loop](https://theinferenceloop.substack.com)** - newsletter and open-source lab
